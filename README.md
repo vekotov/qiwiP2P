@@ -1,6 +1,8 @@
 # Golang QIWI P2P library
 Usage:
 ```go
+import "github.com/vekotov/qiwiP2P"
+
 // create API client
 c := qiwiP2P.CreateClient(token)
 // create bill object
