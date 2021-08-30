@@ -19,11 +19,6 @@ type Amount struct {
 	Value    string `json:"value"`
 }
 
-type Status struct {
-	Value           string `json:"value"`
-	ChangedDateTime string `json:"changedDateTime"`
-}
-
 type Customer struct {
 	Phone   string `json:"phone"`
 	Email   string `json:"email"`

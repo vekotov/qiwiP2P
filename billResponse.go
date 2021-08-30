@@ -21,3 +21,8 @@ type RequestError struct {
 	DateTime    string `json:"dateTime"`
 	TraceId     string `json:"traceId"`
 }
+
+type Status struct {
+	Value           string `json:"value"`
+	ChangedDateTime string `json:"changedDateTime"`
+}
