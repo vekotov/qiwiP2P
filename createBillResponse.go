@@ -1,3 +1,0 @@
-package qiwiP2P
-
-

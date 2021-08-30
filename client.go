@@ -2,6 +2,7 @@ package qiwiP2P
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,24 +23,69 @@ func (c *Client) SetSecretKey(key string) *Client {
 	return c
 }
 
-func (c *Client) PutBill(b *Bill) (json string, retErr error) {
+func (c *Client) PutBill(b *Bill) (result *BillResponse, error *RequestError) {
 	billId := pseudoUUID()
-	req, err := http.NewRequest(
-		"PUT", "https://api.qiwi.com/partner/bill/v1/bills/"+billId, strings.NewReader(b.toJSON()),
+	res, code := c.makeRequest("https://api.qiwi.com/partner/bill/v1/bills/"+billId, "PUT", b.toJSON())
+
+	if code == 401 {
+		return nil, &RequestError{ErrorCode: "bad_token", Description: "Bad token"}
+	}
+
+	return parseResponse(res)
+}
+
+func (c *Client) GetBill(id string) (result *BillResponse, error *RequestError) {
+	res, code := c.makeRequest("https://api.qiwi.com/partner/bill/v1/bills/"+id, "GET", "")
+
+	if code == 401 {
+		return nil, &RequestError{ErrorCode: "bad_token", Description: "Bad token"}
+	}
+	if code == 404 {
+		return nil, &RequestError{ErrorCode: "bad_id", Description: "No such bill found"}
+	}
+
+	return parseResponse(res)
+}
+
+func (c *Client) RejectBill(id string) (result *BillResponse, error *RequestError) {
+	res, code := c.makeRequest("https://api.qiwi.com/partner/bill/v1/bills/"+id+"/reject", "POST", "")
+
+	if code == 401 {
+		return nil, &RequestError{ErrorCode: "bad_token", Description: "Bad token"}
+	}
+	if code == 404 {
+		return nil, &RequestError{ErrorCode: "bad_id", Description: "No such bill found"}
+	}
+
+	return parseResponse(res)
+}
+
+func parseResponse(jsonResponse string) (result *BillResponse, error *RequestError) {
+	var re RequestError
+	json.Unmarshal([]byte(jsonResponse), &error)
+	if re.ErrorCode != "" {
+		return nil, &re
+	}
+
+	var response BillResponse
+	json.Unmarshal([]byte(jsonResponse), &response)
+
+	return &response, nil
+}
+
+func (c *Client) makeRequest(url string, method string, data string) (json string, code int) {
+	req, _ := http.NewRequest(
+		method, url, strings.NewReader(data),
 	)
-	if err != nil {
-		return "", err
-	}
+
 	req.Header.Add("Authorization", "Bearer "+c.token)
-	req.Header.Add("User-Agent", "GoQiwiP2P")
-	res, err := c.client.Do(req)
-	if err != nil {
-		return "", err
-	}
+	req.Header.Add("content-type", "application/json")
+	res, _ := c.client.Do(req)
+
+	defer res.Body.Close()
 	buf := new(strings.Builder)
 	io.Copy(buf, res.Body)
-
-	return buf.String(), nil
+	return buf.String(), res.StatusCode
 }
 
 func pseudoUUID() (uuid string) {
