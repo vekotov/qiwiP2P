@@ -60,7 +60,7 @@ func (b *Bill) SetComment(comment string) *Bill {
 }
 
 func (b *Bill) SetExpirationDateTime(time time.Time) *Bill {
-	b.ExpirationDateTime = time.UTC().Format("2006-01-02T15:01:05+00:00")
+	b.ExpirationDateTime = time.UTC().Format("2006-01-02T15:04:05+00:00")
 	return b
 }
 
