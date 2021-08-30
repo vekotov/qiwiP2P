@@ -2,7 +2,6 @@ package qiwiP2P
 
 import (
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 )
 
 type Client struct {
-	token string
+	token  string
 	client http.Client
 }
 
@@ -23,26 +22,24 @@ func (c *Client) SetSecretKey(key string) *Client {
 	return c
 }
 
-func (c *Client) PutBill(b *Bill) (uuid string, payUrl string, retErr error) {
+func (c *Client) PutBill(b *Bill) (json string, retErr error) {
 	billId := pseudoUUID()
 	req, err := http.NewRequest(
-		"PUT", "https://api.qiwi.com/partner/bill/v1/bills/" + billId, strings.NewReader(b.toJSON()),
+		"PUT", "https://api.qiwi.com/partner/bill/v1/bills/"+billId, strings.NewReader(b.toJSON()),
 	)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	req.Header.Add("Accept", "text/html")   // добавляем заголовок Accept
-	req.Header.Add("User-Agent", "GoQiwiP2P")   // добавляем заголовок User-Agent
+	req.Header.Add("Authorization", "Bearer "+c.token)
+	req.Header.Add("User-Agent", "GoQiwiP2P")
 	res, err := c.client.Do(req)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	buf := new(strings.Builder)
 	io.Copy(buf, res.Body)
-	var result map[string]interface{}
-	json.Unmarshal([]byte(buf.String()), &result)
 
-	return billId, result["payUrl"].(string), nil
+	return buf.String(), nil
 }
 
 func pseudoUUID() (uuid string) {
