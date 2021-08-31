@@ -64,6 +64,11 @@ func (b *Bill) SetExpirationDateTime(time time.Time) *Bill {
 	return b
 }
 
+func (b *Bill) SetExpirationDuration(duration time.Duration) *Bill {
+	b.ExpirationDateTime = time.Now().UTC().Add(duration).Format("2006-01-02T15:04:05+00:00")
+	return b
+}
+
 func (b *Bill) SetCustomerPhone(phone string) *Bill {
 	b.Customer.Phone = phone
 	return b

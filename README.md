@@ -11,7 +11,7 @@ b := qiwiP2P.CreateBill()
 // setup bill parameters
 b.SetValue(10.57)
 b.SetCurrency("RUB")
-b.SetExpirationDateTime(time.Now().Add(time.Minute * 15))
+b.SetExpirationDuration(time.Minute * 5)
 
 // put bill
 result, err := c.PutBill(b)
@@ -37,6 +37,13 @@ result, err := c.RejectBill(result.BillId)
 if err != nil {
     println(err.Description)
     return
+}
+
+// start webhook (you need to setup address on qiwi p2p page first)
+ch := c.StartWebhook("/qiwi", 80)
+for upd := range ch {
+    // print bill id when bill is paid
+    println(upd.Bill.BillId)
 }
 
 ```

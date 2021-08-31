@@ -22,7 +22,16 @@ type RequestError struct {
 	TraceId     string `json:"traceId"`
 }
 
+func (c RequestError) Error() string {
+	return c.Description
+}
+
 type Status struct {
 	Value           string `json:"value"`
 	ChangedDateTime string `json:"changedDateTime"`
+}
+
+type PaymentUpdate struct {
+	Bill    BillResponse `json:"bill"`
+	Version string       `json:"version"`
 }
