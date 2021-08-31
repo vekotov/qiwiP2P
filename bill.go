@@ -9,11 +9,13 @@ import (
 
 // Bill
 // Object used for creating QIWI P2P bill with parameters
-// Amount - money amount
-// Comment - text comment (shown to customer)
-// ExpirationDateTime - time of expiration of bill, in format 2006-01-02T15:04:05+00:00
-// Customer - info about customer, his email, phone and id
-// CustomFields - additional fields, can be used for application purposes (for example storing order id)
+//
+// Fields:
+//   - `Amount` : money amount
+//   - `Comment` : text comment (shown to customer)
+//   - `ExpirationDateTime` : time of expiration of bill, in format 2006-01-02T15:04:05+00:00
+//   - `Customer` : info about customer, his email, phone and id
+//   - `CustomFields` : additional fields, can be used for application purposes (for example storing order id)
 type Bill struct {
 	Amount             Amount            `json:"amount"`
 	Comment            string            `json:"comment"`
@@ -22,7 +24,8 @@ type Bill struct {
 	CustomFields       map[string]string `json:"customFields"`
 }
 
-// Amount Object representing some money amount (currency + value)
+// Amount
+// Object representing some money amount (currency + value)
 type Amount struct {
 	Currency string `json:"currency"`
 	Value    string `json:"value"`
@@ -49,6 +52,7 @@ func CreateBill() *Bill {
 
 // SetTheme
 // Method sets new theme code in bill (decoration of payment form)
+//
 // You can get your theme code here https://qiwi.com/p2p-admin/transfers/link?settings=true
 func (b *Bill) SetTheme(theme string) *Bill {
 	b.CustomFields["themeCode"] = theme
@@ -57,10 +61,11 @@ func (b *Bill) SetTheme(theme string) *Bill {
 
 // SetPaySourcesFilter
 // Method sets pay sources filters
-// filter variants:
-// * "qw,card" - both QIWI Wallet and Credit Card will be available to customer
-// * "card" - only Credit Card will be available to customer
-// * "qw" - only QIWI Wallet will be available to customer
+//
+// Filter variants:
+//   - "qw,card" : both QIWI Wallet and Credit Card will be available to customer
+//   - "card" : only Credit Card will be available to customer
+//   - "qw" : only QIWI Wallet will be available to customer
 func (b *Bill) SetPaySourcesFilter(filter string) *Bill {
 	b.CustomFields["paySourcesFilter"] = filter
 	return b
@@ -68,9 +73,10 @@ func (b *Bill) SetPaySourcesFilter(filter string) *Bill {
 
 // SetCurrency
 // Method sets payment currency
+//
 // Currency variants:
-// * "RUB" - Russian roubles
-// * "KZT" - Kazakhstan tenges
+//   - "RUB" : Russian roubles
+//   - "KZT" : Kazakhstan tenges
 func (b *Bill) SetCurrency(currency string) *Bill {
 	b.Amount.Currency = currency
 	return b
@@ -85,6 +91,7 @@ func (b *Bill) SetValue(value float32) *Bill {
 
 // SetComment
 // Method sets comment of payment
+//
 // Please note that comment will be visible by user
 func (b *Bill) SetComment(comment string) *Bill {
 	b.Comment = comment
@@ -93,12 +100,14 @@ func (b *Bill) SetComment(comment string) *Bill {
 
 // SetExpirationDateTime
 // Method sets expiration moment of payment
+//
 // Can be used instead SetExpirationDuration
+//
 // time is moment, when payment will be automatically rejected
+//
 // Example of usage:
-// ```
-// b.SetExpirationDateTime(time.Now().Add(time.Day))
-// ```
+//
+//     b.SetExpirationDateTime(time.Now().Add(time.Day))
 func (b *Bill) SetExpirationDateTime(time time.Time) *Bill {
 	b.ExpirationDateTime = time.UTC().Format("2006-01-02T15:04:05+00:00")
 	return b
@@ -106,11 +115,12 @@ func (b *Bill) SetExpirationDateTime(time time.Time) *Bill {
 
 // SetExpirationDuration
 // Method sets how long payment will be waiting
+//
 // Can be used instead of SetExpirationDateTime
+//
 // Example of usage:
-// ```
-// b.SetExpirationDuration(time.Hour * 2)
-// ```
+//
+//     b.SetExpirationDuration(time.Hour * 2)
 func (b *Bill) SetExpirationDuration(duration time.Duration) *Bill {
 	b.ExpirationDateTime = time.Now().UTC().Add(duration).Format("2006-01-02T15:04:05+00:00")
 	return b
@@ -118,6 +128,7 @@ func (b *Bill) SetExpirationDuration(duration time.Duration) *Bill {
 
 // SetCustomerPhone
 // Method sets customer phone
+//
 // Customer info can be used only for app purposes, no API use of this field
 func (b *Bill) SetCustomerPhone(phone string) *Bill {
 	b.Customer.Phone = phone
@@ -126,6 +137,7 @@ func (b *Bill) SetCustomerPhone(phone string) *Bill {
 
 // SetCustomerEmail
 // Method sets customer email
+//
 // Customer info can be used only for app purposes, no API use of this field
 func (b *Bill) SetCustomerEmail(email string) *Bill {
 	b.Customer.Email = email
@@ -134,6 +146,7 @@ func (b *Bill) SetCustomerEmail(email string) *Bill {
 
 // SetCustomerAccount
 // Method sets customer id
+//
 // Customer info can be used only for app purposes, no API use of this field
 func (b *Bill) SetCustomerAccount(account string) *Bill {
 	b.Customer.Account = account
@@ -142,6 +155,7 @@ func (b *Bill) SetCustomerAccount(account string) *Bill {
 
 // SetCustomField
 // Method sets custom field in bill
+//
 // Can be used for storing order ids and other application data
 func (b *Bill) SetCustomField(field string, value string) *Bill {
 	b.CustomFields[field] = value

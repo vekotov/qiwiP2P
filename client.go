@@ -16,9 +16,11 @@ import (
 
 // Client
 // Object used for storing client data
-// token - Private key of QIWI P2P
-// client - http.Client object, used for http requests to API
-// ch - Channel of payment updates, used for webhook
+//
+// Fields:
+//   - `token` : Private key of QIWI P2P
+//   - `client` : http.Client object, used for http requests to API
+//   - `ch` : Channel of payment updates, used for webhook
 type Client struct {
 	token  string
 	client http.Client
@@ -40,6 +42,7 @@ func (c *Client) SetSecretKey(key string) *Client {
 
 // PutBill
 // Methods sends Bill object to API, putting it to random ID
+//
 // Returns BillResponse on success, error on failed
 func (c *Client) PutBill(b *Bill) (result *BillResponse, err error) {
 	billId := pseudoUUID()
@@ -77,7 +80,9 @@ func (c *Client) PutBill(b *Bill) (result *BillResponse, err error) {
 
 // GetBill
 // Method gets info about bill with given id
+//
 // You can get ID from BillResponse, which was returned in PutBill
+//
 // Returns BillResponse on success, error on failed
 func (c *Client) GetBill(id string) (result *BillResponse, err error) {
 	res, code, err := c.makeRequest(
@@ -113,8 +118,10 @@ func (c *Client) GetBill(id string) (result *BillResponse, err error) {
 }
 
 // RejectBill
-// Method sets bill status to rejected. Id is needed in arguments
+// Method sets bill status to rejected. ID is needed in arguments
+//
 // You can get ID from BillResponse, which was returned in PutBill
+//
 // Returns BillResponse on success, error on failed
 func (c *Client) RejectBill(id string) (result *BillResponse, err error) {
 	res, code, err := c.makeRequest(
@@ -150,7 +157,9 @@ func (c *Client) RejectBill(id string) (result *BillResponse, err error) {
 }
 
 // parseResponse
+//
 // Parses BillResponse or RequestError JSON
+//
 // Returns either BillResponse or error object
 func parseResponse(jsonResponse string) (result *BillResponse, error error) {
 	var re RequestError
@@ -173,9 +182,11 @@ func parseResponse(jsonResponse string) (result *BillResponse, error error) {
 
 // makeRequest
 // Makes HTTP request to QIWI API server
-// url - path to needed API method
-// method - HTTP method used in API call
-// data - JSON body data (for POST and PUT requests)
+//
+// Arguments:
+//   - `url` : path to needed API method
+//   - `method` : HTTP method used in API call
+//   - `data` : JSON body data (for POST and PUT requests)
 func (c *Client) makeRequest(url string, method string, data string) (json string, code int, err error) {
 	url = "https://api.qiwi.com/partner/bill/v1/bills/" + url
 	req, err := http.NewRequest(
@@ -203,6 +214,7 @@ func (c *Client) makeRequest(url string, method string, data string) (json strin
 
 // pseudoUUID
 // Generates random combination of symbols and letters
+//
 // Used as bill ID
 func pseudoUUID() (uuid string) {
 	b := make([]byte, 16)
@@ -217,11 +229,12 @@ func pseudoUUID() (uuid string) {
 
 // StartWebhook
 // Starts webhook listening on given path and port.
+//
 // Returns channel with payment updates
+//
 // Usage:
-// ```
-// ch := c.StartWebhook("/qiwiWebhook", 80)
-// ```
+//
+//     ch := c.StartWebhook("/qiwiWebhook", 80)
 func (c *Client) StartWebhook(path string, port int) chan PaymentUpdate {
 	go c.startListening(path, port)
 	return c.ch
@@ -264,8 +277,10 @@ func (c *Client) onWebhook(w http.ResponseWriter, r *http.Request) {
 
 // verifyWebhook
 // Method verifies update, returns true if update is authorized and false if not
-// update - PaymentUpdate object
-// hash - X-Api-Signature-SHA256 header from webhook
+//
+// Arguments:
+//   - `update` : PaymentUpdate object
+//   - `hash` : X-Api-Signature-SHA256 header from webhook
 func (c *Client) verifyWebhook(update PaymentUpdate, hash string) bool {
 	invoiceParameters := ""
 	invoiceParameters += update.Bill.Amount.Currency + "|"
